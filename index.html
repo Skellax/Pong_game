@@ -13,11 +13,44 @@
             display: block;
             margin: 0 auto;
         }
+        .game-over-notify {
+            position: fixed;
+            display: none;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            font-size: 40px;
+            font-weight: bold;
+            color: red;
+        }
+        .win-notify {
+            position: fixed;
+            display: none;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            font-size: 40px;
+            font-weight: bold;
+            color: green;
+
+        }
     </style>
 </head>
 <body>
     <h1>My game</h1>
     <canvas id="myCanvas" width="480" height="320"></canvas>
+    <div class="game-over-notify">Game Over: <span id="score1"></span> pts</div>
+    <div class="win-notify">Vous avez gagné: <span id="score2"></span> pts</div>
     
 
     <script>
@@ -40,17 +73,30 @@
         var brickPadding = 10;
         var brickOffsetTop = 30;
         var brickOffsetLeft = 30;
+        var gameOverNotify = document.querySelector('.game-over-notify');
+        var winNotify = document.querySelector(".win-notify");
+        var interval;
+        var colorBall = "red";
+        var score = 0;
+        var bricksCounts = brickRowCount * brickColumnCount;
 
         var bricks = [];
         for(var c=0; c<brickColumnCount; c++) {
             bricks[c] = [];
             for(var r=0; r<brickRowCount; r++) {
-                bricks[c][r] = { x: 0, y: 0 };
+                bricks[c][r] = { x: 0, y: 0, status:1 };
             }
         }
 
+        
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+        gameOverNotify.addEventListener("click", function() {
+            document.location.reload();
+        })
+        winNotify.addEventListener("click", function () {
+            document.location.reload();
+        })
 
         function keyDownHandler(e) {
             if(e.keyCode == 39) {
@@ -72,7 +118,7 @@
         function drawBall() {
             ctx.beginPath();
             ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-            ctx.fillStyle = "#0095DD";
+            ctx.fillStyle = colorBall;
             ctx.fill();
             ctx.closePath();
         }
@@ -86,17 +132,75 @@
         function drawBricks() {
             for(var c=0; c<brickColumnCount; c++) {
                 for(var r=0; r<brickRowCount; r++) {
-                    var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
-                    var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
-                    bricks[c][r].x = brickX;
-                    bricks[c][r].y = brickY;
-                    ctx.beginPath();
-                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                    ctx.fillStyle = "#0095DD";
-                    ctx.fill();
-                    ctx.closePath();
+                    if (bricks[c][r].status == 1) {
+                        var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+                        var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].y = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                        ctx.fillStyle = "#0095DD";
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                    
                 }
             }
+        }
+
+        function collisionDetection() {
+            for (var c=0; c < brickColumnCount; c++) {
+                for (var r=0; r < brickRowCount; r++) {
+                    document.getElementById("score1").innerHTML = score;
+                    document.getElementById("score2").innerHTML = score;
+                    var b = bricks[c][r];
+                    if (b.status == 1 && colorBall == "red")
+                    {
+                        if (x > b.x && x < b.x + brickWidth && y > b.y
+                        && y < b.y + brickHeight)
+                        {
+                            dy = -dy;
+                            b.status = 0;
+                            colorBall = "green";
+                            score += 20;
+                            bricksCounts--;
+                        }
+                    }
+                    else if (b.status == 1 && colorBall == "green")
+                    {
+                        if (x > b.x && x < b.x + brickWidth && y > b.y
+                        && y < b.y + brickHeight)
+                        {
+                            dy = -dy;
+                            b.status = 0;
+                            colorBall = "blue";
+                            score += 20;
+                            bricksCounts--;
+                        }
+
+                    }
+                    else if (b.status == 1 && colorBall == "blue")
+                    {
+                        if (x > b.x && x < b.x + brickWidth && y > b.y
+                        && y < b.y + brickHeight)
+                        {
+                            dy = -dy;
+                            b.status = 0;
+                            colorBall = "red";
+                            score += 20;
+                            bricksCounts--;
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+        function drawScore() {
+            ctx.font = "16 px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Score: " + score, 8, 10);
         }
 
         function draw() {
@@ -104,6 +208,8 @@
             drawBricks();
             drawBall();
             drawPaddle();
+            drawScore();
+            collisionDetection();
             
             if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
                 dx = -dx;
@@ -111,29 +217,31 @@
             if(y + dy < ballRadius) {
                 dy = -dy;
             }
+            if (bricksCounts == 0)
+            {
+                winNotify.style.display = 'flex';
+                clearInterval(interval);
+                return;
+            }
             else if(y + dy > canvas.height-ballRadius) {
                 if(x > paddleX && x < paddleX + paddleWidth) {
-                if(y= y-paddleHeight){
-                    dy = -dy  ;
-                    }
+                    dy = -dy;
                 }
-                else {
-                    alert("GAME OVER");
-                    document.location.reload();
+                else{
+                    gameOverNotify.style.display = 'flex';
+                    clearInterval(interval);
+                    return;
                 }
-            }
-            
+            }            
             if(rightPressed && paddleX < canvas.width-paddleWidth) {
                 paddleX += 7;
             }
             else if(leftPressed && paddleX > 0) {
                 paddleX -= 7;
-            }
-            
+            }           
             x += dx;
             y += dy;
         }
-
         setInterval(draw, 10);  
     </script>    
  </body>
