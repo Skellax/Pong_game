@@ -26,13 +26,19 @@
         var ctx = canvas.getContext("2d");
 
         //Variable de la raquette
-        var widthPaddle = 7;
+        var widthPaddle = 20;
         var heightPaddle = 150;
         var paddleY = (canvas.height - heightPaddle) / 2;
+        var paddleY2 = (canvas.height - heightPaddle) / 2;
 
-        //Variable des commandes 
+        //Variable des commandes de la 1ere raquette 
         var upPressed = false;
         var downPressed = false;
+
+
+        //Variable des commandes de la 2nde raquette
+        var upPressedTwo= false;
+        var downPressedTwo = false;
         
 
         //Variable de la balle
@@ -42,11 +48,12 @@
 
         //Vitesse de la balle 
         var dx = 5;
-        var dy = 5;
+        var dy = 2;
 
 
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
+
 
         function keyDownHandler(e) {
             if (e.keyCode == 38)
@@ -79,14 +86,13 @@
             else if (downPressed && paddleY < canvas.height - heightPaddle) {
                 paddleY += 7;
             }
-
         }
 
         function collisionBall()
         {
-            if(ballX + dx < ballRadius) {
+            if(ballX + dx < ballRadius + widthPaddle){
                 dx = -dx;
-            } else if (ballX + dx > canvas.width - ballRadius){
+            } else if (ballX + dx > canvas.width - ballRadius - widthPaddle){
                 if (ballY > paddleY && ballY < paddleY + heightPaddle)
                 {
                     dx = -dx;
@@ -104,7 +110,16 @@
         {
             ctx.beginPath();
             ctx.roundRect(canvas.width - widthPaddle, paddleY, widthPaddle, heightPaddle, 20);
-            ctx.fillStyle = "whitesmoke";
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawSecondPaddle()
+        {
+            ctx.beginPath();
+            ctx.roundRect(-20+ widthPaddle, ballY - 75, widthPaddle, heightPaddle, 20);
+            ctx.fillStyle = "blue";
             ctx.fill();
             ctx.closePath();
         }
@@ -113,7 +128,27 @@
         {
             ctx.beginPath();
             ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
-            ctx.fillStyle = "whitesmoke";
+            ctx.fillStyle = "rgba(255, 255, 50, 0.8)";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawCircle()
+        {
+            ctx.beginPath()
+            ctx.arc(canvas.width / 2, canvas.height / 2, 100, 0, Math.PI*2, true);
+            ctx.fillStyle = "rgb(224, 224, 224)";
+            ctx.fill();
+            ctx.closePath();
+
+
+        }
+
+        function drawLign()
+        {
+            ctx.beginPath();
+            ctx.rect(canvas.width / 2 - 5, 0, 10, canvas.height);
+            ctx.fillStyle = "rgb(224, 224, 224)";
             ctx.fill();
             ctx.closePath();
         }
@@ -132,7 +167,7 @@
                 //on reinitialise la vitesse de base de la balle;
 
                 dx = 5;
-                dy= 5;
+                dy= 2;
 
           
 
@@ -146,8 +181,12 @@
         function draw()
         {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLign();
+            drawCircle();
             drawPaddle();
+            drawSecondPaddle();
             drawBall();
+            
 
             collisionBall();
             mouvmentsPaddle();
@@ -156,7 +195,8 @@
             ballY += dy;
         }
 
-        setInterval(draw, 1000 / 60);
+
+        setInterval(draw, 1000 / 120);
        
 
    
