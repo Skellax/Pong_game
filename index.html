@@ -99,22 +99,40 @@
 
         function collisionBall()
         {
-            scored(playerTwoIsScored, playerTwoIsScored ? scorePlayerTwo : scorePlayerOne);
-            if(ballX + dx < ballRadius + widthPaddle){
-                   dx = -dx; 
-            } else if (ballX + dx > canvas.width - ballRadius - widthPaddle){
-                if (ballY > paddleY - 20 && ballY < paddleY + heightPaddle + 20)
+            //gestion des scores du joueur 1 et du joueur 2 
+            scored(playerTwoIsScored, scorePlayerTwo);
+            scored (playerOneIsScored, scorePlayerOne);
+
+            //on gere le cote gauche  de l'axe X de la zone du jeu 
+            if(ballX + dx < ballRadius + widthPaddle) // si la balle est inferieure  au rayon de la balle  + la hauteur de la raquette on rentre dans la condition
+            {
+                if (ballY > paddleY - 20 && ballY < paddleY + heightPaddle + 20) // si la balle touche la raquette du joueur 2 on fait rebondir la balle dans le sens inverse
                 {
                     dx = -dx;
-                } else 
+                }
+                else // si la balle ne touche pas la raquette on remet les position a 0 et on incremente le score du joueur 1 
+                {
+                    resetPosition();
+                    playerOneIsScored = true;
+                }
+                    
+            }
+            //on gere le cote droit de l' axe X de la zone du jeu 
+             else if (ballX + dx > canvas.width - ballRadius - widthPaddle) // si la balle est superieur a la largeur du canvas - le rayon de la balle et l'epaisseur de la raquette on rentre dans la condition
+             {
+                if (ballY > paddleY - 20 && ballY < paddleY + heightPaddle + 20) // si la balle touche la raquette du joueur 1 on fait rebondir la ball dans le sens inverse
+                {
+                    dx = -dx;
+                } else  // si la balle ne touche pas la raquette on remet les position a 0 et on increment le score du joueur 2 
                 {
                     resetPosition();
                     playerTwoIsScored = true;                  
                 }                                       
                 }
-
-
-            if (ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) {
+                // on gere les colisions inferieure et superieure de la zone du jeu 
+            if 
+            (ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) // on fait rebondir la balle dans le sens inverse de l'axe y quand elle sort des limites en ajoutant le rayon de la balle
+            {
                 dy = -dy;
             }
         }
@@ -194,7 +212,6 @@
 
                 //on reinitialise la vitesse de base de la balle;
 
-                dx = 3;
                 dy= 1.5;
 
             }, 500);
@@ -208,9 +225,11 @@
             if (playerTwoIsScored) {
                 scorePlayerTwo = score;
                 playerTwoIsScored = false;
+                dx = 3;
             } else if (playerOneIsScored) {
                 scorePlayerOne = score;
                 playerOneIsScored = false;
+                dx = -3;
             }
         }, 250);
     }
@@ -218,7 +237,6 @@
 
         function draw()
         {
-            console.log(scorePlayerTwo);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawLign();
             drawCircle();
@@ -226,7 +244,7 @@
             drawScore(scorePlayerTwo, canvas.width / 2 - 130, 100);
 
             drawPaddle(canvas.width - widthPaddle, paddleY, widthPaddle, heightPaddle, 20, "red");
-            drawPaddle(-20+ widthPaddle, paddleY2 - 75, widthPaddle, heightPaddle, 20, "blue");
+            drawPaddle(-20 + widthPaddle, paddleY, widthPaddle, heightPaddle, 20, "blue");
             drawBall();
             
 
