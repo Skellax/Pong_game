@@ -47,8 +47,15 @@
         var ballRadius = 10;
 
         //Vitesse de la balle 
-        var dx = 5;
-        var dy = 2;
+        var dx = 3;
+        var dy = 1.5;
+
+        //variable du score du joueur1 et du joueur 2; 
+        var scorePlayerOne = 0;
+        var scorePlayerTwo = 0;
+
+        var playerTwoIsScored = false;
+        var playerOneIsScored = false;
 
 
         document.addEventListener("keydown", keyDownHandler, false);
@@ -88,41 +95,47 @@
             }
         }
 
+        //gestion de collision de la balle et du score
+
         function collisionBall()
         {
+            scored(playerTwoIsScored, playerTwoIsScored ? scorePlayerTwo : scorePlayerOne);
             if(ballX + dx < ballRadius + widthPaddle){
-                dx = -dx;
+                   dx = -dx; 
             } else if (ballX + dx > canvas.width - ballRadius - widthPaddle){
-                if (ballY > paddleY && ballY < paddleY + heightPaddle)
+                if (ballY > paddleY - 20 && ballY < paddleY + heightPaddle + 20)
                 {
                     dx = -dx;
-                } else {
-                    resetPosition()
+                } else 
+                {
+                    resetPosition();
+                    playerTwoIsScored = true;                  
+                }                                       
                 }
-            }
+
 
             if (ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) {
                 dy = -dy;
             }
         }
+        
 
-        function drawPaddle()
+
+        //Fonction permettant de dessiner les raquettes avec leurs position, leurs longueur et leur couleur(texture)
+
+        function drawPaddle(posX, posY, width, height, radius, color)
         {
             ctx.beginPath();
-            ctx.roundRect(canvas.width - widthPaddle, paddleY, widthPaddle, heightPaddle, 20);
-            ctx.fillStyle = "red";
+            ctx.roundRect(posX, posY, width, height, radius);
+            ctx.fillStyle = color;
+
+
             ctx.fill();
             ctx.closePath();
         }
 
-        function drawSecondPaddle()
-        {
-            ctx.beginPath();
-            ctx.roundRect(-20+ widthPaddle, ballY - 75, widthPaddle, heightPaddle, 20);
-            ctx.fillStyle = "blue";
-            ctx.fill();
-            ctx.closePath();
-        }
+        // Fonction dessinant la balle 
+
 
         function drawBall()
         {
@@ -132,6 +145,8 @@
             ctx.fill();
             ctx.closePath();
         }
+
+        //Fonction dessinant le cercle au centre du jeu
 
         function drawCircle()
         {
@@ -144,6 +159,8 @@
 
         }
 
+        //fonction dessinant la barre coupant en deux le jeu
+
         function drawLign()
         {
             ctx.beginPath();
@@ -152,6 +169,17 @@
             ctx.fill();
             ctx.closePath();
         }
+
+        //fonction dessinant le score
+
+        function drawScore(score, posX, posY)
+        {
+            ctx.font = "120px Colibri";
+            ctx.fillStyle = "whitesmoke";
+            ctx.fillText(score, posX, posY);
+        }
+
+        //fonction permettant de remmetre a zero la position des joueurs et de la balle;
 
         function resetPosition()
         {
@@ -166,25 +194,39 @@
 
                 //on reinitialise la vitesse de base de la balle;
 
-                dx = 5;
-                dy= 2;
-
-          
-
-
+                dx = 3;
+                dy= 1.5;
 
             }, 500);
-
-            // on remet la vitesse par defaut de la balle;
         }
+
+        function scored(isScored, score) {
+        if (isScored) {
+        setTimeout(function () {
+            score++;
+            isScored = false;
+            if (playerTwoIsScored) {
+                scorePlayerTwo = score;
+                playerTwoIsScored = false;
+            } else if (playerOneIsScored) {
+                scorePlayerOne = score;
+                playerOneIsScored = false;
+            }
+        }, 250);
+    }
+}
 
         function draw()
         {
+            console.log(scorePlayerTwo);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawLign();
             drawCircle();
-            drawPaddle();
-            drawSecondPaddle();
+            drawScore(scorePlayerOne, canvas.width / 2 + 70, 100);
+            drawScore(scorePlayerTwo, canvas.width / 2 - 130, 100);
+
+            drawPaddle(canvas.width - widthPaddle, paddleY, widthPaddle, heightPaddle, 20, "red");
+            drawPaddle(-20+ widthPaddle, paddleY2 - 75, widthPaddle, heightPaddle, 20, "blue");
             drawBall();
             
 
@@ -196,7 +238,7 @@
         }
 
 
-        setInterval(draw, 1000 / 120);
+        setInterval(draw, 1000 / 240);
        
 
    
