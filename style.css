@@ -1,0 +1,67 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+canvas {
+    background: black;
+    display: block;
+    margin: 0 auto;
+    border: black solid 2px;
+}
+
+.playerOne {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    color: red;
+    align-items: center;
+    justify-content: center;
+    font-size: 100px;
+    font-weight: bold;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+.playerTwo {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    color: blue;
+    align-items: center;
+    justify-content: center;
+    font-size: 100px;
+    font-weight: bold;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.perfectPlayerOne {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    transform:rotate(45deg);
+    font-size: 20px;
+    font-weight: bold;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    color: rgb(255, 255, 0);
+
+
+}
+
+.perfectPlayerTwo {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    transform:rotate(45deg);
+    font-size: 80px;
+    font-weight: bold;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    color: rgb(255, 255, 0);
+
+
+}
